@@ -1,6 +1,6 @@
 import json
 from datetime import date
-from src.config import CACHE_FILE, DATA_DIR
+from flatseeker.config import CACHE_FILE, DATA_DIR
 
 
 def load_cache() -> dict:

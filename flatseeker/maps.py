@@ -1,7 +1,7 @@
 import time
 from datetime import datetime, timedelta
 import requests
-from src.config import GOOGLE_MAPS_API_KEY, TARGET_ADDRESS
+from flatseeker.config import GOOGLE_MAPS_API_KEY, TARGET_ADDRESS
 
 
 def _next_weekday_8am() -> int:

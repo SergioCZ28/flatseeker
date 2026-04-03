@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from playwright.sync_api import sync_playwright, Page, Browser
-from src.config import HEADLESS
+from flatseeker.config import HEADLESS
 
 
 @dataclass
@@ -74,7 +74,7 @@ def create_browser(headless: bool = None) -> tuple:
     if headless is None:
         headless = HEADLESS
 
-    from src.config import DATA_DIR
+    from flatseeker.config import DATA_DIR
     profile_dir = str((DATA_DIR / "browser_profile").resolve())
 
     pw = sync_playwright().start()

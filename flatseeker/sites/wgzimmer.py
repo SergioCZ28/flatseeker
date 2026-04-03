@@ -1,8 +1,8 @@
 import re
 from playwright.sync_api import Page
 
-from src.sites.base import BaseSite
-from src.scraper import ListingCard, ListingDetail
+from flatseeker.sites.base import BaseSite
+from flatseeker.scraper import ListingCard, ListingDetail
 
 
 class WgzimmerSite(BaseSite):

@@ -2,8 +2,8 @@ from datetime import date
 from rich.console import Console
 from rich.panel import Panel
 from jinja2 import Template
-from src.config import RESULTS_DIR
-from src.scraper import ListingDetail
+from flatseeker.config import RESULTS_DIR
+from flatseeker.scraper import ListingDetail
 
 
 console = Console(width=120)
@@ -13,7 +13,7 @@ def print_console_report(matched: list[ListingDetail], total_cards: int, pass1_c
     """Print a readable summary to the console."""
     console.print()
     console.print(Panel(
-        f"[bold]Housing Scanner Results - {date.today()}[/bold]\n"
+        f"[bold]Flatseeker Results - {date.today()}[/bold]\n"
         f"Total listings scraped: {total_cards}\n"
         f"After card filter (pass 1): {pass1_count}\n"
         f"After detail filter (pass 2): {pass2_count}\n"
@@ -53,7 +53,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Housing Scanner - {{ today }}</title>
+    <title>Flatseeker - {{ today }}</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
                max-width: 1200px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
@@ -73,7 +73,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     </style>
 </head>
 <body>
-    <h1>Housing Scanner Results</h1>
+    <h1>Flatseeker Results</h1>
     <div class="stats">
         <strong>Date:</strong> {{ today }} |
         <strong>Total scraped:</strong> {{ total_cards }} |

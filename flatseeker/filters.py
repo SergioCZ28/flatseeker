@@ -1,15 +1,15 @@
 import re
 from datetime import date
 
-from src.config import MAX_RENT_CHF, MAX_TOTAL_PEOPLE, MAX_TRANSIT_MINUTES, EARLIEST_MOVE_IN, LATEST_MOVE_IN, MAX_POST_AGE_DAYS
-from src.scraper import ListingCard, ListingDetail
-from src.parser import (
+from flatseeker.config import MAX_RENT_CHF, MAX_TOTAL_PEOPLE, MAX_TRANSIT_MINUTES, EARLIEST_MOVE_IN, LATEST_MOVE_IN, MAX_POST_AGE_DAYS
+from flatseeker.scraper import ListingCard, ListingDetail
+from flatseeker.parser import (
     parse_price, parse_roommate_count, parse_move_in_date, parse_location,
     parse_post_date, is_request_not_offer, is_not_housing, is_sublet, is_foreign_location,
     has_incompatible_requirements,
 )
-from src.maps import get_transit_time_cached
-from src.cache import is_seen, mark_seen
+from flatseeker.maps import get_transit_time_cached
+from flatseeker.cache import is_seen, mark_seen
 
 
 # Categories to always skip

@@ -3,9 +3,9 @@ import time
 import requests
 from playwright.sync_api import Page
 
-from src.sites.base import BaseSite
-from src.scraper import ListingCard, ListingDetail
-from src.config import MAX_RENT_CHF, DATA_DIR
+from flatseeker.sites.base import BaseSite
+from flatseeker.scraper import ListingCard, ListingDetail
+from flatseeker.config import MAX_RENT_CHF, DATA_DIR
 
 
 class FlatfoxSite(BaseSite):
