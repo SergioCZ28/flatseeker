@@ -1,0 +1,145 @@
+"""
+Housing Scanner - main entry point.
+
+Usage:
+    python -m src.main                  # full run (headless)
+    python -m src.main --no-headless    # visible browser (debugging)
+    python -m src.main --skip-maps      # skip Google Maps API calls
+    python -m src.main --force-refresh  # ignore cache, re-process all
+    python -m src.main --limit 5        # only process first N new listings (testing)
+    python -m src.main --sites unibas   # only scrape specific sites
+"""
+
+import argparse
+import sys
+import io
+
+# Fix Windows console encoding for emoji/unicode in listing titles
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='ignore')
+sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='ignore')
+
+from src import config
+from src.sites import get_enabled_sites
+from src.scraper import create_browser, close_browser
+from src.filters import pass1_card_filter, pass2_detail_filter, pass3_transit_filter
+from src.cache import load_cache, save_cache, make_cache_id
+from src.report import print_console_report, generate_html_report
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Scan housing sites for listings")
+    parser.add_argument("--no-headless", action="store_true", help="Show browser window")
+    parser.add_argument("--skip-maps", action="store_true", help="Skip Google Maps API calls")
+    parser.add_argument("--force-refresh", action="store_true", help="Ignore cache, reprocess all")
+    parser.add_argument("--limit", type=int, default=0, help="Limit new listings to process (for testing)")
+    parser.add_argument("--sites", type=str, default="", help="Comma-separated list of sites to scan (default: all)")
+    args = parser.parse_args()
+
+    if args.no_headless:
+        config.HEADLESS = False
+
+    # Load cache
+    cache = load_cache()
+    if args.force_refresh:
+        cache = {}
+        print("Cache cleared (force refresh mode)")
+
+    # Resolve sites
+    site_names = [s.strip() for s in args.sites.split(",") if s.strip()] if args.sites else None
+    sites = get_enabled_sites(site_names)
+    if not sites:
+        print("No valid sites to scan.")
+        return 1
+
+    print("=" * 60)
+    print("  Housing Scanner")
+    print(f"  Sites: {', '.join(s.display_name for s in sites)}")
+    print("=" * 60)
+
+    # Start browser
+    pw, browser, page = create_browser(headless=config.HEADLESS)
+
+    all_matched = []
+    total_cards = 0
+    total_pass1 = 0
+    total_pass2 = 0
+
+    try:
+        for site in sites:
+            print(f"\n{'─' * 50}")
+            print(f"  Scanning: {site.display_name}")
+            print(f"{'─' * 50}")
+
+            # Step 1: Scrape listing cards
+            # Build known_ids as raw slugs (without site prefix) for early-stop detection
+            prefix = f"{site.name}:"
+            known_ids = {k[len(prefix):] for k in cache if k.startswith(prefix)} if cache else None
+            print(f"\n[1/5] Scraping listing cards... ({len(known_ids or set())} known for {site.name})")
+            cards = site.scrape_cards(page, known_ids=known_ids)
+
+            # Prefix listing IDs with site name for cache
+            for card in cards:
+                card.listing_id = make_cache_id(site.name, card.listing_id)
+
+            site_total = len(cards)
+            total_cards += site_total
+            print(f"  Found {site_total} total listings")
+
+            # Step 2: First-pass filter (card level)
+            print("\n[2/5] Pass 1: Card-level filtering...")
+            candidates = pass1_card_filter(cards, cache)
+            print(f"  {len(candidates)} new listings passed card filter")
+
+            if args.limit and len(candidates) > args.limit:
+                candidates = candidates[:args.limit]
+                print(f"  Limited to {args.limit} for testing")
+
+            total_pass1 += len(candidates)
+
+            # Step 3: Scrape detail pages
+            print(f"\n[3/5] Scraping {len(candidates)} detail pages...")
+            details = []
+            for i, card in enumerate(candidates):
+                print(f"  [{i+1}/{len(candidates)}] {card.title[:50]}...")
+                detail = site.scrape_detail(page, card)
+                details.append(detail)
+
+            # Step 4: Second-pass filter (detail level)
+            print("\n[4/5] Pass 2: Detail-level filtering...")
+            filtered = pass2_detail_filter(details, cache)
+            print(f"  {len(filtered)} passed detail filter")
+            total_pass2 += len(filtered)
+
+            # Step 5: Transit time filter
+            if args.skip_maps:
+                print("\n[5/5] Skipping Maps API (--skip-maps)")
+                for d in filtered:
+                    from src.cache import mark_seen
+                    mark_seen(cache, d.card.listing_id, "matched_no_transit", {
+                        "title": d.card.title, "price": d.price_chf,
+                        "address": d.address, "url": d.card.url,
+                        "source_site": site.name,
+                        "note": "Transit check skipped",
+                    })
+                all_matched.extend(filtered)
+            else:
+                print(f"\n[5/5] Pass 3: Checking transit times for {len(filtered)} listings...")
+                matched = pass3_transit_filter(filtered, cache)
+                all_matched.extend(matched)
+
+        # Save cache
+        save_cache(cache)
+
+        # Generate reports
+        print_console_report(all_matched, total_cards, total_pass1, total_pass2)
+        generate_html_report(all_matched, total_cards)
+
+    finally:
+        close_browser(pw, browser)
+
+    print("Done!")
+    return 0 if all_matched else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
