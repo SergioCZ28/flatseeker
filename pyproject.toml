@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "flatseeker"
+version = "0.1.0"
+description = "Automated Basel WG room scanner"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+dependencies = [
+    "playwright",
+    "python-dotenv",
+    "requests",
+    "rich",
+    "jinja2",
+    "pyyaml",
+]
+
+[project.scripts]
+flatseeker = "flatseeker.main:main"
