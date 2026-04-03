@@ -1,7 +1,7 @@
-from src.sites.base import BaseSite
-from src.sites.unibas import UnibasSite
-from src.sites.flatfox import FlatfoxSite
-from src.sites.wgzimmer import WgzimmerSite
+from flatseeker.sites.base import BaseSite
+from flatseeker.sites.unibas import UnibasSite
+from flatseeker.sites.flatfox import FlatfoxSite
+from flatseeker.sites.wgzimmer import WgzimmerSite
 
 SITE_REGISTRY: dict[str, type[BaseSite]] = {
     "unibas": UnibasSite,

@@ -1,13 +1,13 @@
 """
-Housing Scanner - main entry point.
+Flatseeker - main entry point.
 
 Usage:
-    python -m src.main                  # full run (headless)
-    python -m src.main --no-headless    # visible browser (debugging)
-    python -m src.main --skip-maps      # skip Google Maps API calls
-    python -m src.main --force-refresh  # ignore cache, re-process all
-    python -m src.main --limit 5        # only process first N new listings (testing)
-    python -m src.main --sites unibas   # only scrape specific sites
+    flatseeker                       # full run (headless)
+    flatseeker --no-headless         # visible browser (debugging)
+    flatseeker --skip-maps           # skip Google Maps API calls
+    flatseeker --force-refresh       # ignore cache, re-process all
+    flatseeker --limit 5             # only process first N new listings (testing)
+    flatseeker --sites unibas        # only scrape specific sites
 """
 
 import argparse
@@ -18,16 +18,16 @@ import io
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='ignore')
 sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='ignore')
 
-from src import config
-from src.sites import get_enabled_sites
-from src.scraper import create_browser, close_browser
-from src.filters import pass1_card_filter, pass2_detail_filter, pass3_transit_filter
-from src.cache import load_cache, save_cache, make_cache_id
-from src.report import print_console_report, generate_html_report
+from flatseeker import config
+from flatseeker.sites import get_enabled_sites
+from flatseeker.scraper import create_browser, close_browser
+from flatseeker.filters import pass1_card_filter, pass2_detail_filter, pass3_transit_filter
+from flatseeker.cache import load_cache, save_cache, make_cache_id
+from flatseeker.report import print_console_report, generate_html_report
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Scan housing sites for listings")
+    parser = argparse.ArgumentParser(description="Flatseeker - Basel WG room scanner")
     parser.add_argument("--no-headless", action="store_true", help="Show browser window")
     parser.add_argument("--skip-maps", action="store_true", help="Skip Google Maps API calls")
     parser.add_argument("--force-refresh", action="store_true", help="Ignore cache, reprocess all")
@@ -52,7 +52,7 @@ def main():
         return 1
 
     print("=" * 60)
-    print("  Housing Scanner")
+    print("  Flatseeker")
     print(f"  Sites: {', '.join(s.display_name for s in sites)}")
     print("=" * 60)
 
@@ -114,7 +114,7 @@ def main():
             if args.skip_maps:
                 print("\n[5/5] Skipping Maps API (--skip-maps)")
                 for d in filtered:
-                    from src.cache import mark_seen
+                    from flatseeker.cache import mark_seen
                     mark_seen(cache, d.card.listing_id, "matched_no_transit", {
                         "title": d.card.title, "price": d.price_chf,
                         "address": d.address, "url": d.card.url,

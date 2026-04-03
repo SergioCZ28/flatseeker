@@ -1,6 +1,6 @@
 from playwright.sync_api import Page
-from src.sites.base import BaseSite
-from src.scraper import ListingCard, ListingDetail, _extract_attributes
+from flatseeker.sites.base import BaseSite
+from flatseeker.scraper import ListingCard, ListingDetail, _extract_attributes
 
 
 class UnibasSite(BaseSite):
