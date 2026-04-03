@@ -26,6 +26,34 @@ from flatseeker.cache import load_cache, save_cache, make_cache_id
 from flatseeker.report import print_console_report, generate_html_report
 
 
+def _check_results() -> int:
+    """Show cache breakdown and matched listings."""
+    import json
+    from collections import Counter
+
+    cache = load_cache()
+    listings = {k: v for k, v in cache.items() if isinstance(v, dict) and "status" in v}
+    statuses = Counter(v["status"] for v in listings.values())
+
+    print("=== Filter breakdown ===")
+    for status, count in statuses.most_common():
+        print(f"  {status:30s} {count}")
+
+    matches = [v for v in listings.values() if v["status"].startswith("matched")]
+    print(f"\n=== {len(matches)} Matched listings ===\n")
+    for i, v in enumerate(sorted(matches, key=lambda x: x.get("price") or 9999), 1):
+        price = v.get("price", "?")
+        transit = v.get("transit_min", "?")
+        post = v.get("post_date", "?")
+        title = v["title"][:60]
+        addr = v.get("address", "no addr")
+        if addr and len(addr) > 25:
+            addr = addr[:25]
+        print(f"{i:2}. {str(price):>4} CHF | {str(transit):>3} min | {str(post):>10} | {addr:25s} | {title}")
+
+    return 0
+
+
 def main():
     parser = argparse.ArgumentParser(description="Flatseeker - Basel WG room scanner")
     parser.add_argument("--no-headless", action="store_true", help="Show browser window")
@@ -33,7 +61,11 @@ def main():
     parser.add_argument("--force-refresh", action="store_true", help="Ignore cache, reprocess all")
     parser.add_argument("--limit", type=int, default=0, help="Limit new listings to process (for testing)")
     parser.add_argument("--sites", type=str, default="", help="Comma-separated list of sites to scan (default: all)")
+    parser.add_argument("--check-results", action="store_true", help="Show cache breakdown and matched listings, then exit")
     args = parser.parse_args()
+
+    if args.check_results:
+        return _check_results()
 
     if args.no_headless:
         config.HEADLESS = False
