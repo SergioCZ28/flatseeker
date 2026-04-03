@@ -9,11 +9,9 @@ SITE_REGISTRY: dict[str, type[BaseSite]] = {
     "wgzimmer": WgzimmerSite,
 }
 
-ENABLED_SITES: list[str] = ["unibas", "flatfox", "wgzimmer"]
-
-
 def get_enabled_sites(names: list[str] | None = None) -> list[BaseSite]:
     """Return instantiated site objects for the given names (or all enabled)."""
+    from flatseeker.config import ENABLED_SITES
     use = names or ENABLED_SITES
     sites = []
     for name in use:

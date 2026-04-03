@@ -5,7 +5,7 @@ from playwright.sync_api import Page
 
 from flatseeker.sites.base import BaseSite
 from flatseeker.scraper import ListingCard, ListingDetail
-from flatseeker.config import MAX_RENT_CHF, DATA_DIR
+from flatseeker.config import MAX_RENT_CHF, DATA_DIR, FLATFOX_SCAN_WINDOW
 
 
 class FlatfoxSite(BaseSite):
@@ -54,16 +54,11 @@ class FlatfoxSite(BaseSite):
 
         # Step 2: Determine scan range
         max_pk_seen = self._state.get("max_pk", 0)
+        scan_window = FLATFOX_SCAN_WINDOW
+        start_offset = max(0, total_count - scan_window)
         if max_pk_seen > 0:
-            # Incremental: scan last 3000 listings (~1-2 days of new listings)
-            scan_window = 3000
-            start_offset = max(0, total_count - scan_window)
             print(f"  Incremental scan: last {scan_window:,} listings (max_pk={max_pk_seen})")
         else:
-            # First run: scan last 3000 (~3 days of listings)
-            # Full scan of 33k takes ~17 min and Basel rooms are <1% -- not worth it
-            scan_window = 3000
-            start_offset = max(0, total_count - scan_window)
             print(f"  First run: scanning last {scan_window:,} listings")
 
         # Step 3: Paginate and filter
