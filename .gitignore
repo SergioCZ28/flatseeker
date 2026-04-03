@@ -1,8 +1,6 @@
 # Environment & user config
 .env
 config.yaml
-.venv/
-env/
 
 # Python
 __pycache__/
@@ -11,20 +9,20 @@ __pycache__/
 *.egg-info/
 dist/
 build/
+.venv/
+
+# Runtime data (all of it)
+data/
 
 # Playwright
 .playwright/
-data/browser_profile/
-
-# Runtime data
-data/seen_listings.json
-data/flatfox_state.json
-data/wgzimmer_debug.html
-data/results/
 
 # IDE
 .vscode/
 .idea/
+
+# Research notes (local only)
+docs/
 
 # Claude
 .claude/
