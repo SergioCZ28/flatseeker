@@ -1,5 +1,6 @@
-# Environment
+# Environment & user config
 .env
+config.yaml
 .venv/
 env/
 

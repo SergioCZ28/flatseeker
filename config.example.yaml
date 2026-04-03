@@ -1,0 +1,26 @@
+# Flatseeker configuration
+# Copy this file to config.yaml and adjust to your needs.
+
+# Where you work/study -- transit time is calculated to this address
+target_address: "Basel SBB, 4051 Basel, Switzerland"
+
+# Filter thresholds
+max_rent_chf: 700
+max_total_people: 4          # max people in the WG (including you)
+max_transit_minutes: 25       # public transit to target_address
+max_post_age_days: 30         # ignore listings older than this
+
+# Move-in window (YYYY-MM-DD)
+earliest_move_in: "2026-06-01"
+latest_move_in: "2026-07-31"
+
+# Sites to scan (available: unibas, flatfox, wgzimmer)
+sites:
+  - unibas
+  - flatfox
+  - wgzimmer
+
+# Flatfox API scan window (number of recent listings to check)
+# Lower = faster, higher = catches more if you skip days
+# ~500 new listings appear per day across Switzerland
+flatfox_scan_window: 1500
