@@ -1,0 +1,30 @@
+# Environment
+.env
+.venv/
+env/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# Playwright
+.playwright/
+data/browser_profile/
+
+# Runtime data
+data/seen_listings.json
+data/flatfox_state.json
+data/wgzimmer_debug.html
+data/results/
+
+# IDE
+.vscode/
+.idea/
+
+# Claude
+.claude/
+tasks/
