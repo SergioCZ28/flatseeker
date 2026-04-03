@@ -1,5 +1,0 @@
-playwright
-python-dotenv
-requests
-rich
-jinja2
