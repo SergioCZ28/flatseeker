@@ -1,8 +1,9 @@
 import re
+
 from playwright.sync_api import Page
 
-from flatseeker.sites.base import BaseSite
 from flatseeker.scraper import ListingCard, ListingDetail
+from flatseeker.sites.base import BaseSite
 
 
 class WgzimmerSite(BaseSite):
@@ -97,11 +98,19 @@ class WgzimmerSite(BaseSite):
 
             # Build full_text from relevant sections only (avoid footer boilerplate)
             text_parts = []
-            for section_class in [".date-cost", ".adress-region", ".person-content", ".room-content", ".mate-content"]:
+            for section_class in [
+                ".date-cost",
+                ".adress-region",
+                ".person-content",
+                ".room-content",
+                ".mate-content",
+            ]:
                 section = page.query_selector(section_class)
                 if section:
                     text_parts.append(section.inner_text())
-            detail.full_text = "\n".join(text_parts) if text_parts else page.inner_text("body")[:2000]
+            detail.full_text = (
+                "\n".join(text_parts) if text_parts else page.inner_text("body")[:2000]
+            )
 
             # Parse structured data from detail page sections
             detail.price_chf = self._parse_detail_price(page)
@@ -122,10 +131,10 @@ class WgzimmerSite(BaseSite):
             # Google Fundingchoices consent (fc-consent-root)
             # Try "Reject all" / "Do not consent" first (privacy-preserving)
             for selector in [
-                ".fc-consent-root .fc-cta-do-not-consent",   # "Do not consent"
-                ".fc-consent-root .fc-secondary-button",       # Secondary = reject
-                ".fc-consent-root .fc-cta-consent",            # "Consent" as fallback
-                ".fc-consent-root .fc-primary-button",         # Primary button
+                ".fc-consent-root .fc-cta-do-not-consent",  # "Do not consent"
+                ".fc-consent-root .fc-secondary-button",  # Secondary = reject
+                ".fc-consent-root .fc-cta-consent",  # "Consent" as fallback
+                ".fc-consent-root .fc-primary-button",  # Primary button
                 "button:has-text('Reject all')",
                 "button:has-text('Alle ablehnen')",
                 "button:has-text('Accept all')",
@@ -157,12 +166,13 @@ class WgzimmerSite(BaseSite):
     def _dismiss_ad_overlays(self, page: Page) -> None:
         """Remove Google ad vignette overlays that block clicks."""
         try:
-            page.evaluate("""
-                document.querySelectorAll('ins.adsbygoogle-noablate, .fc-consent-root').forEach(el => {
-                    if (el.style.position === 'fixed') el.remove();
-                });
-                document.querySelectorAll('[data-vignette-loaded]').forEach(el => el.remove());
-            """)
+            page.evaluate(
+                "document.querySelectorAll("
+                "'ins.adsbygoogle-noablate, .fc-consent-root')"
+                ".forEach(el => { if (el.style.position === 'fixed') el.remove(); });"
+                "document.querySelectorAll('[data-vignette-loaded]')"
+                ".forEach(el => el.remove());"
+            )
             page.wait_for_timeout(500)
         except Exception:
             pass
@@ -259,7 +269,7 @@ class WgzimmerSite(BaseSite):
                 return None
             text = date_cost.inner_text()
             # Match patterns like "sFr. 480 .--" or "CHF 480" or just "480"
-            match = re.search(r'(?:sFr\.|CHF)?\s*(\d[\d\s]*)', text)
+            match = re.search(r"(?:sFr\.|CHF)?\s*(\d[\d\s]*)", text)
             if match:
                 return int(match.group(1).replace(" ", ""))
         except Exception:

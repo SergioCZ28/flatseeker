@@ -1,5 +1,6 @@
 import json
 from datetime import date
+
 from flatseeker.config import CACHE_FILE, DATA_DIR
 
 
@@ -52,8 +53,4 @@ def mark_seen(cache: dict, listing_id: str, status: str, details: dict) -> None:
 
 
 def get_matched(cache: dict) -> list[dict]:
-    return [
-        {"id": k, **v}
-        for k, v in cache.items()
-        if v.get("status") == "matched"
-    ]
+    return [{"id": k, **v} for k, v in cache.items() if v.get("status") == "matched"]

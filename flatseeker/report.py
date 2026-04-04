@@ -1,26 +1,31 @@
 from datetime import date
+
+from jinja2 import Template
 from rich.console import Console
 from rich.panel import Panel
-from jinja2 import Template
+
 from flatseeker.config import RESULTS_DIR
 from flatseeker.scraper import ListingDetail
-
 
 console = Console(width=120)
 
 
-def print_console_report(matched: list[ListingDetail], total_cards: int, pass1_count: int, pass2_count: int) -> None:
+def print_console_report(
+    matched: list[ListingDetail], total_cards: int, pass1_count: int, pass2_count: int
+) -> None:
     """Print a readable summary to the console."""
     console.print()
-    console.print(Panel(
-        f"[bold]Flatseeker Results - {date.today()}[/bold]\n"
-        f"Total listings scraped: {total_cards}\n"
-        f"After card filter (pass 1): {pass1_count}\n"
-        f"After detail filter (pass 2): {pass2_count}\n"
-        f"After transit filter (pass 3): {len(matched)}",
-        title="Summary",
-        border_style="blue",
-    ))
+    console.print(
+        Panel(
+            f"[bold]Flatseeker Results - {date.today()}[/bold]\n"
+            f"Total listings scraped: {total_cards}\n"
+            f"After card filter (pass 1): {pass1_count}\n"
+            f"After detail filter (pass 2): {pass2_count}\n"
+            f"After transit filter (pass 3): {len(matched)}",
+            title="Summary",
+            border_style="blue",
+        )
+    )
 
     if not matched:
         console.print("\n[yellow]No new matching listings found today.[/yellow]\n")
@@ -30,7 +35,7 @@ def print_console_report(matched: list[ListingDetail], total_cards: int, pass1_c
         price_str = f"{d.price_chf} CHF" if d.price_chf else "price unknown"
         people_str = f"{d.num_people} people" if d.num_people else "?"
         addr_str = d.address or "[yellow]no address - check manually[/yellow]"
-        transit_str = f"{d.transit_min} min" if getattr(d, 'transit_min', None) else "?"
+        transit_str = f"{d.transit_min} min" if getattr(d, "transit_min", None) else "?"
         move_str = d.move_in_date or "?"
         posted_str = d.post_date or "?"
 

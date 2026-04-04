@@ -18,5 +18,21 @@ dependencies = [
     "pyyaml",
 ]
 
+[project.optional-dependencies]
+test = ["pytest"]
+
 [project.scripts]
 flatseeker = "flatseeker.main:main"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+
+[tool.ruff.lint.per-file-ignores]
+"flatseeker/report.py" = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -11,24 +11,27 @@ Usage:
 """
 
 import argparse
-import sys
 import io
+import sys
 
 # Fix Windows console encoding for emoji/unicode in listing titles
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='ignore')
-sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='ignore')
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="ignore")
+sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="ignore")
 
-from flatseeker import config
-from flatseeker.sites import get_enabled_sites
-from flatseeker.scraper import create_browser, close_browser
-from flatseeker.filters import pass1_card_filter, pass2_detail_filter, pass3_transit_filter
-from flatseeker.cache import load_cache, save_cache, make_cache_id
-from flatseeker.report import print_console_report, generate_html_report
+from flatseeker import config  # noqa: E402
+from flatseeker.cache import load_cache, make_cache_id, save_cache  # noqa: E402
+from flatseeker.filters import (  # noqa: E402
+    pass1_card_filter,
+    pass2_detail_filter,
+    pass3_transit_filter,
+)
+from flatseeker.report import generate_html_report, print_console_report  # noqa: E402
+from flatseeker.scraper import close_browser, create_browser  # noqa: E402
+from flatseeker.sites import get_enabled_sites  # noqa: E402
 
 
 def _check_results() -> int:
     """Show cache breakdown and matched listings."""
-    import json
     from collections import Counter
 
     cache = load_cache()
@@ -49,7 +52,10 @@ def _check_results() -> int:
         addr = v.get("address", "no addr")
         if addr and len(addr) > 25:
             addr = addr[:25]
-        print(f"{i:2}. {str(price):>4} CHF | {str(transit):>3} min | {str(post):>10} | {addr:25s} | {title}")
+        print(
+            f"{i:2}. {str(price):>4} CHF | {str(transit):>3} min "
+            f"| {str(post):>10} | {addr:25s} | {title}"
+        )
 
     return 0
 
@@ -59,9 +65,17 @@ def main():
     parser.add_argument("--no-headless", action="store_true", help="Show browser window")
     parser.add_argument("--skip-maps", action="store_true", help="Skip Google Maps API calls")
     parser.add_argument("--force-refresh", action="store_true", help="Ignore cache, reprocess all")
-    parser.add_argument("--limit", type=int, default=0, help="Limit new listings to process (for testing)")
-    parser.add_argument("--sites", type=str, default="", help="Comma-separated list of sites to scan (default: all)")
-    parser.add_argument("--check-results", action="store_true", help="Show cache breakdown and matched listings, then exit")
+    parser.add_argument(
+        "--limit", type=int, default=0, help="Limit new listings to process (for testing)"
+    )
+    parser.add_argument(
+        "--sites", type=str, default="", help="Comma-separated list of sites to scan (default: all)"
+    )
+    parser.add_argument(
+        "--check-results",
+        action="store_true",
+        help="Show cache breakdown and matched listings, then exit",
+    )
     args = parser.parse_args()
 
     if args.check_results:
@@ -105,8 +119,9 @@ def main():
             # Step 1: Scrape listing cards
             # Build known_ids as raw slugs (without site prefix) for early-stop detection
             prefix = f"{site.name}:"
-            known_ids = {k[len(prefix):] for k in cache if k.startswith(prefix)} if cache else None
-            print(f"\n[1/5] Scraping listing cards... ({len(known_ids or set())} known for {site.name})")
+            known_ids = {k[len(prefix) :] for k in cache if k.startswith(prefix)} if cache else None
+            n_known = len(known_ids or set())
+            print(f"\n[1/5] Scraping listing cards... ({n_known} known for {site.name})")
             cards = site.scrape_cards(page, known_ids=known_ids)
 
             # Prefix listing IDs with site name for cache
@@ -123,7 +138,7 @@ def main():
             print(f"  {len(candidates)} new listings passed card filter")
 
             if args.limit and len(candidates) > args.limit:
-                candidates = candidates[:args.limit]
+                candidates = candidates[: args.limit]
                 print(f"  Limited to {args.limit} for testing")
 
             total_pass1 += len(candidates)
@@ -132,7 +147,7 @@ def main():
             print(f"\n[3/5] Scraping {len(candidates)} detail pages...")
             details = []
             for i, card in enumerate(candidates):
-                print(f"  [{i+1}/{len(candidates)}] {card.title[:50]}...")
+                print(f"  [{i + 1}/{len(candidates)}] {card.title[:50]}...")
                 detail = site.scrape_detail(page, card)
                 details.append(detail)
 
@@ -147,12 +162,20 @@ def main():
                 print("\n[5/5] Skipping Maps API (--skip-maps)")
                 for d in filtered:
                     from flatseeker.cache import mark_seen
-                    mark_seen(cache, d.card.listing_id, "matched_no_transit", {
-                        "title": d.card.title, "price": d.price_chf,
-                        "address": d.address, "url": d.card.url,
-                        "source_site": site.name,
-                        "note": "Transit check skipped",
-                    })
+
+                    mark_seen(
+                        cache,
+                        d.card.listing_id,
+                        "matched_no_transit",
+                        {
+                            "title": d.card.title,
+                            "price": d.price_chf,
+                            "address": d.address,
+                            "url": d.card.url,
+                            "source_site": site.name,
+                            "note": "Transit check skipped",
+                        },
+                    )
                 all_matched.extend(filtered)
             else:
                 print(f"\n[5/5] Pass 3: Checking transit times for {len(filtered)} listings...")

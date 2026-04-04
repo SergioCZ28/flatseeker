@@ -1,6 +1,7 @@
 """Unit tests for flatseeker.filters -- pass1 and pass2 filter logic."""
-from flatseeker.scraper import ListingCard, ListingDetail
+
 from flatseeker.filters import pass1_card_filter, pass2_detail_filter
+from flatseeker.scraper import ListingCard, ListingDetail
 
 
 def _make_card(
@@ -28,6 +29,7 @@ def _make_detail(card: ListingCard = None, full_text: str = "") -> ListingDetail
 
 
 # ── pass1_card_filter ────────────────────────────────────────────────────────
+
 
 class TestPass1CardFilter:
     def test_normal_listing_passes(self):
@@ -83,6 +85,7 @@ class TestPass1CardFilter:
 
 
 # ── pass2_detail_filter ──────────────────────────────────────────────────────
+
 
 class TestPass2DetailFilter:
     def test_normal_detail_passes(self):

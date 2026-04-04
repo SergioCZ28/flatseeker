@@ -1,6 +1,8 @@
 import time
 from datetime import datetime, timedelta
+
 import requests
+
 from flatseeker.config import GOOGLE_MAPS_API_KEY, TARGET_ADDRESS
 
 
