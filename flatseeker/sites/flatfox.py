@@ -1,11 +1,12 @@
 import json
 import time
+
 import requests
 from playwright.sync_api import Page
 
-from flatseeker.sites.base import BaseSite
+from flatseeker.config import DATA_DIR, FLATFOX_SCAN_WINDOW, MAX_RENT_CHF
 from flatseeker.scraper import ListingCard, ListingDetail
-from flatseeker.config import MAX_RENT_CHF, DATA_DIR, FLATFOX_SCAN_WINDOW
+from flatseeker.sites.base import BaseSite
 
 
 class FlatfoxSite(BaseSite):
@@ -29,8 +30,10 @@ class FlatfoxSite(BaseSite):
     # Object types we care about (WG rooms primarily, small studios secondarily)
     TARGET_CATEGORIES = {"SHARED"}
     TARGET_TYPES = {
-        "SHARED_FLAT", "SINGLE_ROOM",  # WG rooms
-        "STUDIO", "FURNISHED_FLAT",     # small places that might be affordable
+        "SHARED_FLAT",
+        "SINGLE_ROOM",  # WG rooms
+        "STUDIO",
+        "FURNISHED_FLAT",  # small places that might be affordable
     }
 
     # Local state file for tracking scan progress
@@ -94,7 +97,10 @@ class FlatfoxSite(BaseSite):
             pages_fetched += 1
 
             if pages_fetched % 10 == 0:
-                print(f"  Fetched {pages_fetched} pages ({offset:,}/{total_count:,}), {len(cards)} Basel matches...")
+                print(
+                    f"  Fetched {pages_fetched} pages ({offset:,}/{total_count:,}), "
+                    f"{len(cards)} Basel matches..."
+                )
 
             # Polite delay to avoid triggering Cloudflare
             time.sleep(0.3)
@@ -210,7 +216,9 @@ class FlatfoxSite(BaseSite):
         pk = str(listing["pk"])
         title = listing.get("short_title") or listing.get("slug", "")
         url_path = listing.get("url", "")
-        full_url = f"https://flatfox.ch{url_path}" if url_path else f"https://flatfox.ch/en/flat/{pk}/"
+        full_url = (
+            f"https://flatfox.ch{url_path}" if url_path else f"https://flatfox.ch/en/flat/{pk}/"
+        )
 
         # Build description from available fields
         desc_parts = []

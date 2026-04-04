@@ -21,8 +21,9 @@ data/
 .vscode/
 .idea/
 
-# Research notes (local only)
+# Personal files (local only)
 docs/
+wg_template.md
 
 # Claude
 .claude/

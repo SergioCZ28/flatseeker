@@ -1,5 +1,4 @@
 import os
-import sys
 from datetime import date
 from pathlib import Path
 
@@ -30,6 +29,7 @@ DEFAULTS = {
     "flatfox_scan_window": 1500,
 }
 
+
 # ── Load config.yaml (fall back to defaults) ────────────────────────────────
 def _load_config() -> dict:
     if CONFIG_FILE.exists():
@@ -37,6 +37,7 @@ def _load_config() -> dict:
             user_config = yaml.safe_load(f) or {}
         return {**DEFAULTS, **user_config}
     return dict(DEFAULTS)
+
 
 _cfg = _load_config()
 

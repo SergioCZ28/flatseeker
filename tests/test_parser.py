@@ -1,20 +1,22 @@
 """Unit tests for flatseeker.parser -- text extraction functions."""
+
 from datetime import date
+
 from flatseeker.parser import (
+    has_incompatible_requirements,
+    is_foreign_location,
+    is_not_housing,
+    is_request_not_offer,
+    is_sublet,
+    parse_location,
+    parse_move_in_date,
+    parse_post_date,
     parse_price,
     parse_roommate_count,
-    parse_move_in_date,
-    parse_location,
-    parse_post_date,
-    is_not_housing,
-    is_sublet,
-    is_foreign_location,
-    is_request_not_offer,
-    has_incompatible_requirements,
 )
 
-
 # ── parse_price ──────────────────────────────────────────────────────────────
+
 
 class TestParsePrice:
     def test_chf_after_number(self):
@@ -56,6 +58,7 @@ class TestParsePrice:
 
 # ── parse_roommate_count ─────────────────────────────────────────────────────
 
+
 class TestParseRoommateCount:
     def test_3er_wg(self):
         assert parse_roommate_count("3er WG") == 3
@@ -78,6 +81,7 @@ class TestParseRoommateCount:
 
 # ── parse_move_in_date ───────────────────────────────────────────────────────
 
+
 class TestParseMoveInDate:
     def test_ab_sofort(self):
         assert parse_move_in_date("ab sofort verfügbar") == date.today()
@@ -99,6 +103,7 @@ class TestParseMoveInDate:
 
 
 # ── parse_location ───────────────────────────────────────────────────────────
+
 
 class TestParseLocation:
     def test_street_address(self):
@@ -123,6 +128,7 @@ class TestParseLocation:
 
 # ── parse_post_date ──────────────────────────────────────────────────────────
 
+
 class TestParsePostDate:
     def test_valid_date(self):
         result = parse_post_date("Erstellt am 15.03.2026")
@@ -136,6 +142,7 @@ class TestParsePostDate:
 
 
 # ── is_not_housing ───────────────────────────────────────────────────────────
+
 
 class TestIsNotHousing:
     def test_cleaning(self):
@@ -155,6 +162,7 @@ class TestIsNotHousing:
 
 
 # ── is_sublet ────────────────────────────────────────────────────────────────
+
 
 class TestIsSublet:
     def test_zwischenmiete(self):
@@ -181,6 +189,7 @@ class TestIsSublet:
 
 # ── is_foreign_location ──────────────────────────────────────────────────────
 
+
 class TestIsForeignLocation:
     def test_lorrach(self):
         assert is_foreign_location("Wohnung in Lörrach") is True
@@ -203,6 +212,7 @@ class TestIsForeignLocation:
 
 # ── is_request_not_offer ─────────────────────────────────────────────────────
 
+
 class TestIsRequestNotOffer:
     def test_ich_suche(self):
         assert is_request_not_offer("Ich suche ein Zimmer in Basel") is True
@@ -224,6 +234,7 @@ class TestIsRequestNotOffer:
 
 
 # ── has_incompatible_requirements ────────────────────────────────────────────
+
 
 class TestHasIncompatibleRequirements:
     def test_pronoun_requirement(self):

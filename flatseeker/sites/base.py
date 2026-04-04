@@ -1,13 +1,15 @@
 from abc import ABC, abstractmethod
+
 from playwright.sync_api import Page
+
 from flatseeker.scraper import ListingCard, ListingDetail
 
 
 class BaseSite(ABC):
     """Abstract base for all housing site scrapers."""
 
-    name: str = ""            # e.g. "unibas"
-    display_name: str = ""    # e.g. "markt.unibas.ch"
+    name: str = ""  # e.g. "unibas"
+    display_name: str = ""  # e.g. "markt.unibas.ch"
     base_url: str = ""
 
     def apply_site_filters(self, page: Page) -> None:

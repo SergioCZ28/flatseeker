@@ -1,6 +1,7 @@
 from playwright.sync_api import Page
-from flatseeker.sites.base import BaseSite
+
 from flatseeker.scraper import ListingCard, ListingDetail, _extract_attributes
+from flatseeker.sites.base import BaseSite
 
 
 class UnibasSite(BaseSite):
@@ -18,12 +19,16 @@ class UnibasSite(BaseSite):
     def apply_site_filters(self, page: Page) -> None:
         """Use the site's filter UI to select Type = Offers."""
         try:
-            type_label = page.query_selector("label:has-text('Type')") or page.query_selector("label:has-text('Typ')")
+            type_label = page.query_selector("label:has-text('Type')") or page.query_selector(
+                "label:has-text('Typ')"
+            )
             if not type_label:
                 print("  [WARN] Could not find Type label")
                 return
 
-            type_root = type_label.evaluate_handle("el => el.closest('[class*=\"Select-root\"]') || el.parentElement")
+            type_root = type_label.evaluate_handle(
+                "el => el.closest('[class*=\"Select-root\"]') || el.parentElement"
+            )
             type_input = type_root.as_element().query_selector("input")
             if not type_input:
                 print("  [WARN] Could not find Type input")
@@ -74,7 +79,7 @@ class UnibasSite(BaseSite):
                 listing_id = href.split("/")[-1]
 
                 inner_text = el.inner_text().strip()
-                lines = [l.strip() for l in inner_text.split("\n") if l.strip()]
+                lines = [line.strip() for line in inner_text.split("\n") if line.strip()]
 
                 title = ""
                 category = ""
@@ -88,14 +93,16 @@ class UnibasSite(BaseSite):
 
                 full_url = f"https://markt.unibas.ch{href}" if href.startswith("/") else href
 
-                cards.append(ListingCard(
-                    listing_id=listing_id,
-                    title=title,
-                    category=category,
-                    description=description,
-                    url=full_url,
-                    source_site=self.name,
-                ))
+                cards.append(
+                    ListingCard(
+                        listing_id=listing_id,
+                        title=title,
+                        category=category,
+                        description=description,
+                        url=full_url,
+                        source_site=self.name,
+                    )
+                )
             except Exception as e:
                 print(f"  [WARN] Failed to parse card: {e}")
                 continue
@@ -118,7 +125,9 @@ class UnibasSite(BaseSite):
 
         return detail
 
-    def _load_all_listings(self, page: Page, max_clicks: int = 50, known_ids: set[str] | None = None) -> None:
+    def _load_all_listings(
+        self, page: Page, max_clicks: int = 50, known_ids: set[str] | None = None
+    ) -> None:
         """Click 'Load more' button until all listings are loaded."""
         stale_attempts = 0
 
@@ -134,9 +143,15 @@ class UnibasSite(BaseSite):
                         if "/post/" in href:
                             recent_ids.append(href.split("/")[-1])
                     if recent_ids:
-                        known_ratio = sum(1 for rid in recent_ids if rid in known_ids) / len(recent_ids)
+                        known_ratio = sum(1 for rid in recent_ids if rid in known_ids) / len(
+                            recent_ids
+                        )
                         if known_ratio >= 0.8:
-                            print(f"  Reached known listings ({known_ratio:.0%} already seen), stopping ({before_count} cards)")
+                            pct = f"{known_ratio:.0%}"
+                            print(
+                                f"  Reached known listings ({pct} already seen), "
+                                f"stopping ({before_count} cards)"
+                            )
                             break
 
                 btn = page.query_selector("button:has-text('Load more')")
@@ -157,7 +172,10 @@ class UnibasSite(BaseSite):
                 if after_count == before_count:
                     stale_attempts += 1
                     if stale_attempts >= 3:
-                        print(f"  No new cards after {stale_attempts} attempts, stopping ({after_count} cards)")
+                        print(
+                            f"  No new cards after {stale_attempts} attempts, "
+                            f"stopping ({after_count} cards)"
+                        )
                         break
                 else:
                     stale_attempts = 0
