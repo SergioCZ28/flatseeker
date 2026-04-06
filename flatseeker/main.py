@@ -76,10 +76,27 @@ def main():
         action="store_true",
         help="Show cache breakdown and matched listings, then exit",
     )
+    parser.add_argument(
+        "--init",
+        action="store_true",
+        help="Interactive setup -- creates config.yaml and .env",
+    )
     args = parser.parse_args()
+
+    if args.init:
+        config.init_config()
+        return 0
 
     if args.check_results:
         return _check_results()
+
+    # Warn about missing config / API key
+    if config.USING_DEFAULTS:
+        print("Note: No config.yaml found -- using default settings.")
+        print("      Run 'flatseeker --init' to set up your own config.\n")
+    if not config.GOOGLE_MAPS_API_KEY:
+        print("Note: No Google Maps API key found -- transit filtering will be skipped.")
+        print("      Add GOOGLE_MAPS_API_KEY to .env or run 'flatseeker --init'.\n")
 
     if args.no_headless:
         config.HEADLESS = False
